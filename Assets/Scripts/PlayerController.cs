@@ -12,9 +12,11 @@ public class PlayerController : MonoBehaviour
     public float crouchedColliderSizeX, crouchedColliderSizeY;
 
 
+
     float initialColliderOffsetX, initialColliderOffsetY;
     float initialColliderSizeX, initialColliderSizeY;
-
+    bool isOnGround;
+    const int groundLayer = 8;
     BoxCollider2D boxCollider;
 
     private void Awake()
@@ -31,7 +33,8 @@ public class PlayerController : MonoBehaviour
     {
         Move();
         Crouch();
-        Jump();
+        if (isOnGround)
+            Jump();
     }
 
     private void Move()
@@ -57,7 +60,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void Crouch() {
+    void Crouch()
+    {
         if (Input.GetKeyDown(KeyCode.RightControl))
         {
             animator.SetBool("isCrouch", true);
@@ -70,10 +74,12 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void Jump() {
+    void Jump()
+    {
+        Debug.Log(isOnGround);
         if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
         {
-            GetComponent<Rigidbody2D>().AddForce(Vector2.up*Time.deltaTime * jumpSpeed, ForceMode2D.Impulse);
+            GetComponent<Rigidbody2D>().AddForce(Vector2.up * Time.deltaTime * jumpSpeed, ForceMode2D.Impulse);
             animator.SetTrigger("Jump");
         }
     }
@@ -82,5 +88,22 @@ public class PlayerController : MonoBehaviour
     {
         boxCollider.offset = new Vector2(offsetX, offsetY);
         boxCollider.size = new Vector2(sizeX, sizeY);
+    }
+
+    public void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.gameObject.layer == groundLayer)
+        {
+            isOnGround = true;
+
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.collider.gameObject.layer == groundLayer)
+        {
+            isOnGround = false;
+        }
     }
 }
